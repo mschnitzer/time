@@ -51,7 +51,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
 	logprintf = (logprintf_t)ppData[PLUGIN_DATA_LOGPRINTF];
 
 	logprintf(" --------------------------------------------------------");
-	logprintf(" time version %s successfully loaded!", PLUGIN_VERSION);
+	logprintf(" timeutils version %s successfully loaded!", PLUGIN_VERSION);
 	logprintf(" Developer: Manuel Schnitzer");
 	logprintf(" Website: https://github.com/mschnitzer/time");
 	logprintf(" --------------------------------------------------------");
