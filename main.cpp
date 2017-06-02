@@ -97,7 +97,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
 
 PLUGIN_EXPORT void PLUGIN_CALL Unload()
 {
-    logprintf(" * time was unloaded.");
+    logprintf(" * timeutils was unloaded.");
 }
 
 extern "C" const AMX_NATIVE_INFO PluginNatives[] =
