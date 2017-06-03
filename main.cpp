@@ -31,7 +31,6 @@ cell AMX_NATIVE_CALL time_convert(AMX* amx, cell* params)
     struct tm *tm = localtime(&t);
     char date[20];
     strftime(date, sizeof(date), format.c_str(), tm);
-    delete tm;
 
     cell *addr = NULL;
 
