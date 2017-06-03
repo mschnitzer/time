@@ -5,6 +5,7 @@
  */
 
 native time_convert(timestamp, format[], out[], out_len);
+native datetime(out[], out_len);
 native timestamp_to_datetime(timestamp, out[], out_len);
 native datetime_to_timestamp(datetime[]);
 

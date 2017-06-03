@@ -41,6 +41,27 @@ cell AMX_NATIVE_CALL time_convert(AMX* amx, cell* params)
     return 1;
 }
 
+cell AMX_NATIVE_CALL datetime(AMX* amx, cell* params)
+{
+    time_t t = gettime();
+    struct tm *tm = localtime(&t);
+
+    if (tm == NULL)
+    {
+        return 0;
+    }
+
+    char datetime[25];
+    strftime(datetime, sizeof(datetime), "%F %T", tm);
+
+    cell *addr = NULL;
+
+    amx_GetAddr(amx, params[1], &addr);
+    amx_SetString(addr, datetime, 0, 0, params[2]);
+
+    return 1;
+}
+
 cell AMX_NATIVE_CALL timestamp_to_datetime(AMX* amx, cell* params)
 {
     time_t t = params[1];
@@ -103,6 +124,7 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload()
 extern "C" const AMX_NATIVE_INFO PluginNatives[] =
 {
     { "time_convert", time_convert },
+    { "datetime", datetime },
     { "timestamp_to_datetime", timestamp_to_datetime },
     { "datetime_to_timestamp", datetime_to_timestamp },
     { 0, 0 }
