@@ -29,7 +29,7 @@ cell AMX_NATIVE_CALL time_convert(AMX* amx, cell* params)
 
     time_t t = timestamp;
     struct tm *tm = localtime(&t);
-    char date[20];
+    char date[20] = { 0 };
     strftime(date, sizeof(date), format.c_str(), tm);
 
     cell *addr = NULL;
@@ -46,11 +46,9 @@ cell AMX_NATIVE_CALL datetime(AMX* amx, cell* params)
     struct tm *tm = localtime(&t);
 
     if (tm == NULL)
-    {
         return 0;
-    }
 
-    char datetime[25];
+    char datetime[25] = { 0 };
     strftime(datetime, sizeof(datetime), "%F %T", tm);
 
     cell *addr = NULL;
@@ -67,11 +65,9 @@ cell AMX_NATIVE_CALL timestamp_to_datetime(AMX* amx, cell* params)
     struct tm *tm = localtime(&t);
 
     if (tm == NULL)
-    {
         return 0;
-    }
 
-    char datetime[25];
+    char datetime[25] = { 0 };
     strftime(datetime, sizeof(datetime), "%F %T", tm);
 
     cell *addr = NULL;
@@ -87,13 +83,108 @@ cell AMX_NATIVE_CALL datetime_to_timestamp(AMX* amx, cell* params)
     std::string datetime = AmxUtils::amx_GetStdString(amx, &params[1]);
 
     struct tm tm;
-    time_t epoch;
-    int timestamp = 0;
 
     if (strptime(datetime.c_str(), "%Y-%m-%d %H:%M:%S", &tm) == NULL)
         return -1;
 
+    // auto-detect daylight saving time
+    tm.tm_isdst = -1;
+
     return mktime(&tm);
+}
+
+cell AMX_NATIVE_CALL date(AMX* amx, cell* params)
+{
+    time_t t = gettime();
+    struct tm *tm = localtime(&t);
+
+    if (tm == NULL)
+        return 0;
+
+    char date[12] = { 0 };
+    strftime(date, sizeof(date), "%F", tm);
+
+    cell *addr = NULL;
+
+    amx_GetAddr(amx, params[1], &addr);
+    amx_SetString(addr, date, 0, 0, params[2]);
+
+    return 1;
+}
+
+cell AMX_NATIVE_CALL datetime_to_date(AMX* amx, cell* params)
+{
+    std::string datetime = AmxUtils::amx_GetStdString(amx, &params[1]);
+
+    struct tm tm;
+
+    if (strptime(datetime.c_str(), "%Y-%m-%d %H:%M:%S", &tm) == NULL)
+        return 0;
+
+    cell *addr = NULL;
+    char date[25] = { 0 };
+
+    strftime(date, sizeof(date), "%F", &tm);
+
+    amx_GetAddr(amx, params[2], &addr);
+    amx_SetString(addr, date, 0, 0, params[3]);
+
+    return 1;
+}
+
+cell AMX_NATIVE_CALL date_to_datetime(AMX* amx, cell* params)
+{
+    std::string date = AmxUtils::amx_GetStdString(amx, &params[1]);
+
+    struct tm tm;
+
+    if (strptime(date.c_str(), "%Y-%m-%d", &tm) == NULL)
+        return 0;
+
+    char datetime[25] = { 0 };
+    strftime(datetime, sizeof(datetime), "%F 00:00:00", &tm);
+
+    cell *addr = NULL;
+
+    amx_GetAddr(amx, params[2], &addr);
+    amx_SetString(addr, datetime, 0, 0, params[3]);
+
+    return 1;
+}
+
+cell AMX_NATIVE_CALL date_to_timestamp(AMX* amx, cell* params)
+{
+    std::string date = AmxUtils::amx_GetStdString(amx, &params[1]);
+    date += " 00:00:00";
+
+    struct tm tm;
+
+    if (strptime(date.c_str(), "%Y-%m-%d %H:%M:%S", &tm) == NULL)
+        return -1;
+
+    // auto-detect daylight saving time
+    tm.tm_isdst = -1;
+
+    return mktime(&tm);
+}
+
+cell AMX_NATIVE_CALL timestamp_to_date(AMX* amx, cell* params)
+{
+    time_t t = params[1];
+    struct tm *tm = localtime(&t);
+
+    if (tm == NULL)
+        return 0;
+
+    char date[12] = { 0 };
+    strftime(date, sizeof(date), "%F", tm);
+
+    cell *addr = NULL;
+
+    amx_GetAddr(amx, params[2], &addr);
+    amx_SetString(addr, date, 0, 0, params[3]);
+
+    return 1;
 }
 
 PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports()
@@ -123,9 +214,16 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload()
 extern "C" const AMX_NATIVE_INFO PluginNatives[] =
 {
     { "time_convert", time_convert },
+    // datetime functions
     { "datetime", datetime },
     { "timestamp_to_datetime", timestamp_to_datetime },
     { "datetime_to_timestamp", datetime_to_timestamp },
+    // date functions
+    { "date", date },
+    { "datetime_to_date", datetime_to_date },
+    { "date_to_datetime", date_to_datetime },
+    { "date_to_timestamp", date_to_timestamp },
+    { "timestamp_to_date", timestamp_to_date },
     { 0, 0 }
 };
 
